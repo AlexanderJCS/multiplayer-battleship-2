@@ -13,6 +13,25 @@ from ship_coord import ShipCoordinate
 from ship import Ship
 
 
+class Text:
+    def __init__(self, message, font, color, pos):
+        self.font = font
+        self.color = color
+        self.pos = pos
+
+        self.text = self.font.render(message, True, self.color)
+        self.rect = self.text.get_rect()
+        self.rect.center = self.pos
+
+    def draw(self, surface):
+        surface.blit(self.text, self.rect)
+
+    def change_text(self, new_text):
+        self.text = self.font.render(new_text, True, self.color)
+        self.rect = self.text.get_rect()
+        self.rect.center = self.pos
+
+
 class DecideShipsGui:
     def __init__(self, board_size: int, surface: pygame.Surface):
         self.board_size = board_size
@@ -153,8 +172,8 @@ class MainGui:
         self.client_socket = client_socket
         self.board: Board = Board()
         self.opponent_board: Board = Board()
-        self.hit_info = networking.RecvMessage(self.client_socket)
-        self.opponent_move_info = networking.RecvMessage(self.client_socket)
+        self.turn_text = Text("Waiting for other player", pygame.font.SysFont("Calibri", 25),
+                              (255, 255, 255), (constants.GUI_WIDTH // 2, constants.Y_OFFSET - 50))
 
     def fire(self, x, y):
         fire_message = networking.SendMessage(self.client_socket)
@@ -172,16 +191,6 @@ class MainGui:
 
         else:
             self.opponent_board.add_miss(x, y)
-
-    def get_info(self):
-        self.hit_info = networking.RecvMessage(self.client_socket)
-        self.hit_info.receive()
-
-        self.opponent_move_info = networking.RecvMessage(self.client_socket)
-        self.opponent_move_info.receive()
-
-    def get_turn_info(self):
-        pass
 
     def handle_event(self, event: pygame.event):
         if self.mode == Mode.SELECTING_MOVE and event.type == pygame.MOUSEBUTTONDOWN:
@@ -252,6 +261,8 @@ class MainGui:
                               dist - 1, dist - 1))
 
     def draw(self):
+        self.surface.fill((0, 0, 0))
+        self.turn_text.draw(self.surface)
         self.draw_player_board()
         self.draw_opponent_board()
         pygame.display.update()
@@ -268,24 +279,26 @@ class MainGui:
 
     def run(self):
         while True:
-            self.opponent_move_info = networking.RecvMessage(self.client_socket)
-            self.opponent_move_info.receive()
+            opponent_move_info = networking.RecvMessage(self.client_socket)
+            opponent_move_info.receive()
 
-            while not self.opponent_move_info.received:
+            while not opponent_move_info.received:
                 self.draw()
                 pygame.event.get()  # ignore all events during this time
 
-            print(self.opponent_move_info.message)
+            print(opponent_move_info.message)
             self.mode = Mode.SELECTING_MOVE
 
-            if self.opponent_move_info.message != "waiting for move":
+            if opponent_move_info.message != "waiting for move":
                 for ship in self.ships:
-                    if ship.has_coords(*self.opponent_move_info.message):
-                        self.add_opponent_hit(*self.opponent_move_info.message)
+                    if ship.has_coords(*opponent_move_info.message):
+                        self.add_opponent_hit(*opponent_move_info.message)
                         break
 
                 else:  # nobreak
-                    self.board.add_miss(*self.opponent_move_info.message)
+                    self.board.add_miss(*opponent_move_info.message)
+
+            self.turn_text.change_text("Your turn")
 
             while self.mode == Mode.SELECTING_MOVE:
                 self.draw()
@@ -295,5 +308,7 @@ class MainGui:
 
             sunk_status = networking.RecvMessage(self.client_socket)
             sunk_status.recv_blocking()
+
+            self.turn_text.change_text("Waiting for other player")
 
             print(f"Ship sunk status: {sunk_status.message}")
