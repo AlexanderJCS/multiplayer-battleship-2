@@ -54,7 +54,7 @@ class Game:
                         sunk = True
 
                 if sunk:
-                    player.send(f"sunk {ship_hit}")
+                    player.send(f"You sunk a {ship_hit}")
 
                 else:
                     player.send("no ship sank")

@@ -1,5 +1,6 @@
 import logging
 import socket
+import time
 
 from enum import Enum
 
@@ -128,32 +129,31 @@ class DecideShipsGui:
             if self.add_ship(coords[0], coords[1], ship_len, ship_name):
                 self.ship_lengths.pop()
 
-    def handle_keys_pressed(self, keys) -> bool:
+        if event.type == pygame.KEYDOWN:
+            self.handle_keys_pressed(pygame.key.get_pressed())
+
+    def handle_keys_pressed(self, keys):
         """
         :param keys: The keys currently being pressed, this can be accessed using pygame.key.get_pressed()
-        :return: Whether the class should exit the run method
         """
 
         if keys[pygame.K_r]:
             self.place_horizontal = not self.place_horizontal
-            return False
-
-        if keys[pygame.K_RETURN]:
-            return True
 
     def run(self) -> list:
         """
         :return: A list of ship objects to be fed into the MainGui class
         """
 
+        clock = pygame.time.Clock()
+
         while len(self.ship_lengths) > 0:
             for event in pygame.event.get():
-                self.handle_event(event, self.ship_lengths[-1]["length"], self.ship_lengths[-1]["name"])
-
-            if self.handle_keys_pressed(pygame.key.get_pressed()):
-                break
+                if len(self.ship_lengths) > 0:
+                    self.handle_event(event, self.ship_lengths[-1]["length"], self.ship_lengths[-1]["name"])
 
             self.draw()
+            clock.tick(60)
 
         return self.ships
 
@@ -173,7 +173,9 @@ class MainGui:
         self.board: Board = Board()
         self.opponent_board: Board = Board()
         self.turn_text = Text("Waiting for other player", pygame.font.SysFont("Calibri", 25),
-                              (255, 255, 255), (constants.GUI_WIDTH // 2, constants.Y_OFFSET - 50))
+                              (255, 255, 255), (constants.GUI_WIDTH // 2, constants.Y_OFFSET - 75))
+        self.ship_destroy_text = Text("", pygame.font.SysFont("Calibri", 25),
+                                      (255, 255, 255), (constants.GUI_WIDTH // 2, constants.Y_OFFSET - 25))
 
     def fire(self, x, y):
         fire_message = networking.SendMessage(self.client_socket)
@@ -263,6 +265,7 @@ class MainGui:
     def draw(self):
         self.surface.fill((0, 0, 0))
         self.turn_text.draw(self.surface)
+        self.ship_destroy_text.draw(self.surface)
         self.draw_player_board()
         self.draw_opponent_board()
         pygame.display.update()
@@ -278,6 +281,8 @@ class MainGui:
         self.board.add_miss(x, y)
 
     def run(self):
+        clock = pygame.time.Clock()
+
         while True:
             opponent_move_info = networking.RecvMessage(self.client_socket)
             opponent_move_info.receive()
@@ -285,6 +290,7 @@ class MainGui:
             while not opponent_move_info.received:
                 self.draw()
                 pygame.event.get()  # ignore all events during this time
+                clock.tick(60)
 
             print(opponent_move_info.message)
             self.mode = Mode.SELECTING_MOVE
@@ -306,9 +312,14 @@ class MainGui:
                 for event in pygame.event.get():
                     self.handle_event(event)
 
+                clock.tick(60)
+
             sunk_status = networking.RecvMessage(self.client_socket)
             sunk_status.recv_blocking()
 
             self.turn_text.change_text("Waiting for other player")
 
             print(f"Ship sunk status: {sunk_status.message}")
+
+            if sunk_status.message != "no ship sank":
+                self.ship_destroy_text.change_text(sunk_status.message)
