@@ -122,8 +122,8 @@ class DecideShipsGui:
     def draw(self):
         self.surface.fill((0, 0, 0))
         self.draw_grid()
-        self.draw_preview_ship()
         self.draw_ships()
+        self.draw_preview_ship()
         pygame.display.update()
 
     def add_ship(self, x: int, y: int, length: int, name: str):
