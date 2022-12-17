@@ -1,9 +1,11 @@
+import logging
 import socket
 
-import logging
 import pygame
+
 import networking
-import gui
+import setup_gui
+import main_gui
 
 
 class Game:
@@ -28,7 +30,7 @@ class Game:
             logging.critical(f"Cannot convert {board_size_packet.message} to an int when trying to parse board size")
             exit(1)
 
-        ship_setup = gui.DecideShipsGui(self.board_size, self.surface)
+        ship_setup = setup_gui.SetupGui(self.board_size, self.surface)
         self.ships = ship_setup.run()
 
         server_ship_locations = []
@@ -54,5 +56,5 @@ class Game:
 
     def run(self):
         self.run_setup()
-        main_gui = gui.MainGui(self.ships, self.board_size, self.surface, self.client_socket)
-        main_gui.run()
+        mg = main_gui.MainGui(self.ships, self.board_size, self.surface, self.client_socket)
+        mg.run()
