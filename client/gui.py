@@ -100,11 +100,11 @@ class DecideShipsGui:
                                                     self.ship_lengths[-1]["name"])
 
         # If a ship can be placed at that location
+        dist = constants.GUI_WIDTH // self.board_size
+
         if can_be_placed:
             # Draw the ship
             for coord in preview_ship.coordinates:
-                dist = constants.GUI_WIDTH // self.board_size
-
                 pygame.draw.rect(self.surface, constants.PREVIEW_SHIP_COLOR,
                                  (coord.x * dist + 1, coord.y * dist + 1,
                                   dist - 1, dist - 1))
@@ -112,8 +112,6 @@ class DecideShipsGui:
         else:
             # Draw the ship
             for coord in preview_ship.coordinates:
-                dist = constants.GUI_WIDTH // self.board_size
-
                 if coord.y * dist + 1 >= constants.GUI_WIDTH:
                     break
 
@@ -318,12 +316,32 @@ class MainGui:
                              (miss[0] * dist + 1, miss[1] * dist + constants.Y_OFFSET + 1,
                               dist - 1, dist - 1))
 
+    def draw_preview_move(self):
+        mouse_pos = pygame.mouse.get_pos()
+
+        if mouse_pos[1] <= constants.Y_OFFSET:
+            return
+
+        dist = constants.GUI_WIDTH // self.board_size
+
+        coords = (int(mouse_pos[0] / constants.GUI_WIDTH * self.board_size),
+                  int((mouse_pos[1] - constants.Y_OFFSET) / constants.GUI_WIDTH * self.board_size))
+
+        pygame.draw.rect(self.surface, constants.PREVIEW_SHIP_COLOR,
+                         (coords[0] * dist + 1, coords[1] * dist + constants.Y_OFFSET + 1,
+                          dist - 1, dist - 1))
+
     def draw(self):
         self.surface.fill((0, 0, 0))
-        self.turn_text.draw(self.surface)
-        self.ship_destroy_text.draw(self.surface)
         self.draw_player_board()
         self.draw_opponent_board()
+
+        if self.mode == Mode.SELECTING_MOVE:
+            self.draw_preview_move()
+
+        self.turn_text.draw(self.surface)
+        self.ship_destroy_text.draw(self.surface)
+
         pygame.display.update()
 
     def add_opponent_hit(self, x, y):
@@ -348,7 +366,6 @@ class MainGui:
                 pygame.event.get()  # ignore all events during this time
                 clock.tick(60)
 
-            print(opponent_move_info.message)
             self.mode = Mode.SELECTING_MOVE
 
             if opponent_move_info.message != "waiting for move":
@@ -374,8 +391,6 @@ class MainGui:
             sunk_status.recv_blocking()
 
             self.turn_text.change_text("Waiting for other player")
-
-            print(f"Ship sunk status: {sunk_status.message}")
 
             if sunk_status.message != "no ship sank":
                 self.ship_destroy_text.change_text(sunk_status.message)

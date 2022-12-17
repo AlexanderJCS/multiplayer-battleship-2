@@ -52,10 +52,7 @@ class Game:
             ship_setup.draw()
             clock.tick(60)
 
-        print("got start message")
-
     def run(self):
         self.run_setup()
-        print("exited run setup")
         main_gui = gui.MainGui(self.ships, self.board_size, self.surface, self.client_socket)
         main_gui.run()
