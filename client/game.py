@@ -45,9 +45,12 @@ class Game:
         start_message = networking.RecvMessage(self.client_socket)
         start_message.receive()
 
+        clock = pygame.time.Clock()
+
         while not start_message.received:
             pygame.event.get()  # ignore all events
             ship_setup.draw()
+            clock.tick(60)
 
         print("got start message")
 

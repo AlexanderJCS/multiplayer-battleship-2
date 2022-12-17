@@ -1,6 +1,5 @@
 import logging
 import socket
-import time
 
 from enum import Enum
 
@@ -78,25 +77,73 @@ class DecideShipsGui:
             x += size_between
             y += size_between
 
+    def draw_preview_ship(self):
+        """
+        Draws a "preview ship" that shows where an actual ship would be placed
+        """
+
+        # Prevent a KeyError
+        if len(self.ship_lengths) == 0:
+            return
+
+        mouse_pos = pygame.mouse.get_pos()
+
+        # If the mouse is out of the board
+        if mouse_pos[1] >= constants.GUI_WIDTH:
+            return
+
+        coords = (int(mouse_pos[0] / constants.GUI_WIDTH * self.board_size),
+                  int(mouse_pos[1] / constants.GUI_WIDTH * self.board_size))
+
+        can_be_placed, preview_ship = self.add_ship(coords[0], coords[1],
+                                                    self.ship_lengths[-1]["length"],
+                                                    self.ship_lengths[-1]["name"])
+
+        # If a ship can be placed at that location
+        if can_be_placed:
+            # Draw the ship
+            for coord in preview_ship.coordinates:
+                dist = constants.GUI_WIDTH // self.board_size
+
+                pygame.draw.rect(self.surface, constants.PREVIEW_SHIP_COLOR,
+                                 (coord.x * dist + 1, coord.y * dist + 1,
+                                  dist - 1, dist - 1))
+
+        else:
+            # Draw the ship
+            for coord in preview_ship.coordinates:
+                dist = constants.GUI_WIDTH // self.board_size
+
+                if coord.y * dist + 1 >= constants.GUI_WIDTH:
+                    break
+
+                pygame.draw.rect(self.surface, constants.PREVIEW_SHIP_CANNOT_PLACE_COLOR,
+                                 (coord.x * dist + 1, coord.y * dist + 1,
+                                  dist - 1, dist - 1))
+
     def draw(self):
+        self.surface.fill((0, 0, 0))
         self.draw_grid()
+        self.draw_preview_ship()
         self.draw_ships()
         pygame.display.update()
 
-    def add_ship(self, x: int, y: int, length: int, name: str) -> bool:
+    def add_ship(self, x: int, y: int, length: int, name: str):
         """
         Adds a ship at the given x and y coordiantes.
         :param x: The x coord of the ship.
         :param y: The y coord of ths ship.
         :param length: The length of the ship
         :param name: The name of the ship
-        :return: Whether the ship was added or not
+        :return: (if the ship can be placed, the ship object)
         """
+        can_be_placed = True
+
         if self.place_horizontal and x + length > self.board_size:
-            return False
+            can_be_placed = False
 
         if not self.place_horizontal and y + length > self.board_size:
-            return False
+            can_be_placed = False
 
         coordinates = []
 
@@ -107,9 +154,15 @@ class DecideShipsGui:
             else:
                 coordinates.append(ShipCoordinate(x, y + i))
 
-        self.ships.append(Ship(coordinates, name))
+        # Check if the ship overlaps with any other ship
+        # and if it does, can_be_placed will be false
+        for ship in self.ships:
+            for coord1 in coordinates:
+                for coord2 in ship.coordinates:
+                    if coord1.x == coord2.x and coord1.y == coord2.y:
+                        return False, Ship(coordinates, name)
 
-        return True
+        return can_be_placed, Ship(coordinates, name)
 
     def handle_event(self, event: pygame.event, ship_len: int, ship_name: str):
         if event.type == pygame.QUIT:
@@ -126,7 +179,10 @@ class DecideShipsGui:
             coords = (int(mouse_pos[0] / constants.GUI_WIDTH * self.board_size),
                       int(mouse_pos[1] / constants.GUI_WIDTH * self.board_size))
 
-            if self.add_ship(coords[0], coords[1], ship_len, ship_name):
+            can_be_placed, ship = self.add_ship(coords[0], coords[1], ship_len, ship_name)
+
+            if can_be_placed:
+                self.ships.append(ship)
                 self.ship_lengths.pop()
 
         if event.type == pygame.KEYDOWN:
