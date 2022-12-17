@@ -1,3 +1,10 @@
+import pygame
+
+if not pygame.font.get_init():
+    pygame.font.init()
+
+FONT = pygame.font.SysFont("Calibri", 25)
+
 GUI_WIDTH = 400
 GUI_HEIGHT = 900
 Y_OFFSET = GUI_WIDTH + 100

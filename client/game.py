@@ -3,17 +3,35 @@ import socket
 
 import pygame
 
+import connection_gui
 import networking
+import constants
 import setup_gui
 import main_gui
 
 
 class Game:
-    def __init__(self, surface: pygame.Surface, client_socket: socket.socket):
-        self.client_socket = client_socket
+    def __init__(self, surface: pygame.Surface):
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.surface = surface
         self.ships = []
         self.board_size = None
+
+    def connect(self):
+        # Run the IP connection screen
+        conn = connection_gui.IPConnectionScreen(self.surface, constants.GUI_WIDTH, 100, self.client_socket)
+
+        while True:
+            connected = conn.run()
+
+            if connected:
+                break
+
+            # Reset the client socket to avoid errors if the connection failed
+            self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            conn = connection_gui.IPConnectionScreen(self.surface, constants.GUI_WIDTH, 100, self.client_socket, "Failed")
+
+        self.client_socket.settimeout(1000)
 
     def run_setup(self):
         board_size_packet = networking.RecvMessage(self.client_socket)
@@ -55,6 +73,7 @@ class Game:
             clock.tick(60)
 
     def run(self):
+        self.connect()
         self.run_setup()
         mg = main_gui.MainGui(self.ships, self.board_size, self.surface, self.client_socket)
         mg.run()

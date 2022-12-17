@@ -26,9 +26,11 @@ class MainGui:
         self.client_socket = client_socket
         self.board: Board = Board()
         self.opponent_board: Board = Board()
-        self.turn_text = Text("Waiting for other player", pygame.font.SysFont("Calibri", 25),
+
+        self.turn_text = Text("Waiting for other player", constants.FONT,
                               (255, 255, 255), (constants.GUI_WIDTH // 2, constants.Y_OFFSET - 75))
-        self.ship_destroy_text = Text("", pygame.font.SysFont("Calibri", 25),
+
+        self.ship_destroy_text = Text("", constants.FONT,
                                       (255, 255, 255), (constants.GUI_WIDTH // 2, constants.Y_OFFSET - 25))
 
     def _fire(self, x, y):

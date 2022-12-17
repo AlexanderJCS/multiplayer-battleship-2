@@ -9,6 +9,7 @@ class Game:
 
     def setup(self):
         for player in self.players:
+            player.send("start")
             player.send(str(constants.BOARD_SIZE))
 
         for player in self.players:

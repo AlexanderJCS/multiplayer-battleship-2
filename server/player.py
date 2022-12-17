@@ -1,3 +1,4 @@
+import logging
 import json
 
 from board import Board
@@ -17,20 +18,20 @@ class Player:
             header = self.clientsocket.recv(constants.HEADERSIZE)
 
             if header == b"":
-                print("Socket disconnected")
+                logging.critical("Socket disconnected")
                 return "Client disconnected"
 
             message_length = int(header.decode('utf-8').strip())
             message = self.clientsocket.recv(message_length)
 
         except (ConnectionResetError, ConnectionAbortedError):
-            print("Connection reset or connection aborted error: socket disconnected")
+            logging.critical("Connection reset or connection aborted error: socket disconnected")
             return "Client disconnected"
 
         return json.loads(message)
 
     def send(self, message):
-        print(f"Sending message {message}")
+        logging.info(f"Sending message {message}")
 
         message = json.dumps(message, ensure_ascii=False).encode("utf-8")
         header_info = f"{len(message):<{constants.HEADERSIZE}}".encode("utf-8")
