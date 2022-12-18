@@ -65,8 +65,9 @@ class MainGui:
             coords = (int(mouse_pos[0] / constants.GUI_WIDTH * self.board_size),
                       int((mouse_pos[1] - constants.Y_OFFSET) / constants.GUI_WIDTH * self.board_size))
 
-            self._fire(*coords)
-            self.mode = Mode.WAITING_FOR_MSG
+            if not (self.opponent_board.hit_at(*coords) or self.opponent_board.miss_at(*coords)):
+                self._fire(*coords)
+                self.mode = Mode.WAITING_FOR_MSG
 
     def _draw_grid(self, y_offset=0):
         size_between = constants.GUI_WIDTH // self.board_size
