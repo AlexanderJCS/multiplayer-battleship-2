@@ -19,13 +19,12 @@ class Mode(Enum):
 
 class MainGui:
     def __init__(self, ships: list, board_size: int, surface: pygame.Surface, client_socket: socket.socket):
-        self.ships = ships
         self.board_size = board_size
         self.surface = surface
         self.mode: Mode = Mode.WAITING_FOR_MSG
         self.client_socket = client_socket
-        self.board: Board = Board()
-        self.opponent_board: Board = Board()
+        self.board: Board = Board(ships)
+        self.opponent_board: Board = Board([])
 
         self.turn_text = Text("Waiting for other player", constants.FONT,
                               (255, 255, 255), (constants.GUI_WIDTH // 2, constants.Y_OFFSET - 75))
@@ -88,7 +87,7 @@ class MainGui:
             y += size_between
 
     def _draw_ships(self):
-        for ship in self.ships:
+        for ship in self.board.ships:
             ship.draw(self.surface, self.board_size)
 
     def _draw_preview_move(self):
@@ -120,16 +119,6 @@ class MainGui:
 
         pygame.display.update()
 
-    def _add_opponent_hit(self, x, y):
-        for ship in self.ships:
-            for coord in ship.coordinates:
-                if coord.x == x and coord.y == y:
-                    coord.hit = True
-                    self.board.add_hit(x, y)
-                    return
-
-        self.board.add_miss(x, y)
-
     def run(self):
         clock = pygame.time.Clock()
 
@@ -150,9 +139,9 @@ class MainGui:
             self.mode = Mode.SELECTING_MOVE
 
             if opponent_move_info.message != "waiting for move":
-                for ship in self.ships:
+                for ship in self.board.ships:
                     if ship.has_coords(*opponent_move_info.message):
-                        self._add_opponent_hit(*opponent_move_info.message)
+                        self.board.fire_at(*opponent_move_info.message)
                         break
 
                 else:  # nobreak

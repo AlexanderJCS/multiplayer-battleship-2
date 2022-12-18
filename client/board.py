@@ -4,7 +4,8 @@ import constants
 
 
 class Board:
-    def __init__(self):
+    def __init__(self, ships):
+        self.ships = ships
         self.hits = []
         self.misses = []
 
@@ -19,6 +20,15 @@ class Board:
 
     def miss_at(self, x: int, y: int) -> bool:
         return any(miss[0] == x and miss[1] == y for miss in self.misses)
+
+    def fire_at(self, x, y):
+        for ship in self.ships:
+            for coord in ship.coordinates:
+                if coord.x == x and coord.y == y:
+                    self.hit_at(x, y)
+                    return
+
+        self.miss_at(x, y)
 
     @staticmethod
     def draw_grid(surface, board_size, y_offset=0):
