@@ -87,41 +87,9 @@ class MainGui:
             x += size_between
             y += size_between
 
-    def _draw_player_board(self):
-        self._draw_grid()
-
-        dist = constants.GUI_WIDTH // self.board_size
-
+    def _draw_ships(self):
         for ship in self.ships:
-            for coord in ship.coordinates:
-                pygame.draw.rect(self.surface, constants.SHIP_COLOR,
-                                 (coord.x * dist + 1, coord.y * dist + 1,
-                                  dist - 1, dist - 1))
-
-        for hit in self.board.hits:
-            pygame.draw.rect(self.surface, constants.HIT_COLOR,
-                             (hit[0] * dist + 1, hit[1] * dist + 1,
-                              dist - 1, dist - 1))
-
-        for miss in self.board.misses:
-            pygame.draw.rect(self.surface, constants.MISS_COLOR,
-                             (miss[0] * dist + 1, miss[1] * dist + 1,
-                              dist - 1, dist - 1))
-
-    def _draw_opponent_board(self):
-        self._draw_grid(constants.Y_OFFSET)
-
-        dist = constants.GUI_WIDTH // self.board_size
-
-        for hit in self.opponent_board.hits:
-            pygame.draw.rect(self.surface, constants.HIT_COLOR,
-                             (hit[0] * dist + 1, hit[1] * dist + constants.Y_OFFSET + 1,
-                              dist - 1, dist - 1))
-
-        for miss in self.opponent_board.misses:
-            pygame.draw.rect(self.surface, constants.MISS_COLOR,
-                             (miss[0] * dist + 1, miss[1] * dist + constants.Y_OFFSET + 1,
-                              dist - 1, dist - 1))
+            ship.draw(self.surface, self.board_size)
 
     def _draw_preview_move(self):
         mouse_pos = pygame.mouse.get_pos()
@@ -140,8 +108,9 @@ class MainGui:
 
     def _draw(self):
         self.surface.fill((0, 0, 0))
-        self._draw_player_board()
-        self._draw_opponent_board()
+        self._draw_ships()
+        self.board.draw(self.surface, self.board_size)
+        self.opponent_board.draw(self.surface, self.board_size, constants.Y_OFFSET)
 
         if self.mode == Mode.SELECTING_MOVE:
             self._draw_preview_move()

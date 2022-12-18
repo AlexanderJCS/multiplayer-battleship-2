@@ -1,3 +1,6 @@
+import pygame
+
+import constants
 
 
 class Ship:
@@ -27,3 +30,11 @@ class Ship:
 
     def has_coords(self, x, y):
         return any(coord.x == x and coord.y == y for coord in self.coordinates)
+
+    def draw(self, surface, board_size):
+        dist = constants.GUI_WIDTH // board_size
+
+        for coord in self.coordinates:
+            pygame.draw.rect(surface, constants.SHIP_COLOR,
+                             (coord.x * dist + 1, coord.y * dist + 1,
+                              dist - 1, dist - 1))
