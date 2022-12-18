@@ -29,7 +29,8 @@ class Game:
 
             # Reset the client socket to avoid errors if the connection failed
             self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            conn = connection_gui.IPConnectionScreen(self.surface, constants.GUI_WIDTH, 100, self.client_socket, "Failed")
+            conn = connection_gui.IPConnectionScreen(self.surface, constants.GUI_WIDTH, 100,
+                                                     self.client_socket, "Failed")
 
         self.client_socket.settimeout(1000)
 
