@@ -139,7 +139,7 @@ class SetupGui:
     def _handle_event(self, event: pygame.event, ship_len: int, ship_name: str):
         if event.type == pygame.QUIT:
             pygame.quit()
-            exit(0)
+            exit()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = pygame.mouse.get_pos()

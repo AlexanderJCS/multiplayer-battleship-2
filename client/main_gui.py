@@ -51,6 +51,10 @@ class MainGui:
             self.opponent_board.add_miss(x, y)
 
     def _handle_event(self, event: pygame.event):
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            exit()
+
         if self.mode == Mode.SELECTING_MOVE and event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = pygame.mouse.get_pos()
 
@@ -165,7 +169,12 @@ class MainGui:
 
             while not opponent_move_info.received:
                 self._draw()
-                pygame.event.get()  # ignore all events during this time
+
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        exit()
+
                 clock.tick(60)
 
             self.mode = Mode.SELECTING_MOVE
