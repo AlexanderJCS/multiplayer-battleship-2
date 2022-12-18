@@ -1,11 +1,9 @@
 # Multiplayer Battleship 2
 A second version (and rewrite with a GUI) of my multiplayer battleship game made almost 1 year ago. This is a clone of Hasbro's Battleship game (however I plan on adding more things that the original game doesn't have).
 
-# Setting up
+# Player
 
-## Player
-
-### 1. Downloading
+## 1. Downloading
 
 First, all dependencies must be satisfied. Make sure Python 3.10 is installed. You can download it [here](https://www.python.org/downloads/release/python-3109/).
 
@@ -19,12 +17,26 @@ Download the source code from the [latest release](https://github.com/AlexanderJ
 
 If this does not work, double check that all dependencies (Pygame) are met.
 
-## Server
+## 2. Connecting to the Server
 
-### 1. Port Forwarding
+Once the program is open, you will be prompted with an IP and port. The port will always be 9850 unless specified by the server owner. To get the IP of the server, ask the server owner.
+
+Once the information is inputted, press enter to connect. Once connected, the game will not start until another player connects.
+
+## 3. Placing Ships
+
+After another player conects to the server, you will be prompted to place your ships. This can be done by clicking once the ship is over the desired spot. Press "R" to rotate the ship. If the ship preview is highlighted red, the ship cannot be placed there.
+
+## 4. Playing Against Another Person
+
+Once both your ships are placed and your opponnet's ships are placed, you can fire at your opponent when the text on the screen says "Your turn". Click on the bottom board to fire. If the square is white, it is a miss. If it is red, it is a hit.
+
+# Server
+
+## 1. Port Forwarding
 On the server network, please make sure that port 9850 is open. This is the port used for all communication between the client and server when the game is running.
 
-### 2. Running the Server
+## 2. Running the Server
 
 First, download Python 3.10 (newer Python3 versions should work, but Python 3.10 is what is tested).
 
