@@ -1,6 +1,7 @@
 import pygame
 
 import constants
+import gui_text
 
 from ship_coord import ShipCoordinate
 from ship import Ship
@@ -8,6 +9,15 @@ from ship import Ship
 
 class SetupGui:
     def __init__(self, board_size: int, surface: pygame.Surface):
+        self.rotate_text = gui_text.Text("Press R to rotate ship", constants.FONT,
+                                         (255, 255, 255), (constants.GUI_WIDTH // 2, constants.Y_OFFSET - 66))
+
+        self.undo_text = gui_text.Text("Press U to undo placement", constants.FONT,
+                                       (255, 255, 255), (constants.GUI_WIDTH // 2, constants.Y_OFFSET - 33))
+
+        self.submit_text = gui_text.Text("Press enter to submit ships", constants.FONT,
+                                         (255, 255, 255), (constants.GUI_WIDTH // 2, constants.Y_OFFSET))
+
         self.board_size = board_size
         self.surface = surface
         self.place_horizontal = True
@@ -91,6 +101,9 @@ class SetupGui:
 
     def draw(self):
         self.surface.fill((0, 0, 0))
+        self.rotate_text.draw(self.surface)
+        self.undo_text.draw(self.surface)
+        self.submit_text.draw(self.surface)
         self._draw_grid()
         self._draw_ships()
         self._draw_preview_ship()
@@ -132,12 +145,12 @@ class SetupGui:
 
         return can_be_placed, Ship(coordinates, name)
 
-    def _handle_event(self, event: pygame.event, ship_len: int, ship_name: str):
+    def _handle_event(self, event: pygame.event):
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and len(self.ship_lengths) > 0:
             mouse_pos = pygame.mouse.get_pos()
 
             # If it is out of the board
@@ -147,22 +160,40 @@ class SetupGui:
             coords = (int(mouse_pos[0] / constants.GUI_WIDTH * self.board_size),
                       int(mouse_pos[1] / constants.GUI_WIDTH * self.board_size))
 
-            can_be_placed, ship = self._add_ship(coords[0], coords[1], ship_len, ship_name)
+            can_be_placed, ship = self._add_ship(coords[0], coords[1], self.ship_lengths[-1]["length"],
+                                                 self.ship_lengths[-1]["name"])
 
             if can_be_placed:
                 self.ships.append(ship)
                 self.ship_lengths.pop()
 
         if event.type == pygame.KEYDOWN:
-            self._handle_keys_pressed(pygame.key.get_pressed())
+            if exit_ship_placement := self._handle_keys_pressed(pygame.key.get_pressed()):
+                return exit_ship_placement
 
     def _handle_keys_pressed(self, keys):
         """
         :param keys: The keys currently being pressed, this can be accessed using pygame.key.get_pressed()
+        :returns if the program should exit the ship placement stage
         """
 
         if keys[pygame.K_r]:
             self.place_horizontal = not self.place_horizontal
+
+        if keys[pygame.K_u] and len(self.ships) != 0:
+            popped_ship = self.ships.pop()
+            self.ship_lengths.append({"name": popped_ship.name, "length": len(popped_ship.coordinates)})
+
+        if keys[pygame.K_RETURN]:
+            if len(self.ships) == 5:
+                self.submit_text.change_text("Submitted, waiting for opponent")
+                self.submit_text.change_color((2, 217, 2))
+                return True
+
+            self.submit_text.change_text("Place all ships before submitting")
+            self.submit_text.change_color((255, 0, 0))
+
+        return False
 
     def run(self) -> list:
         """
@@ -171,12 +202,10 @@ class SetupGui:
 
         clock = pygame.time.Clock()
 
-        while len(self.ship_lengths) > 0:
+        while True:
             for event in pygame.event.get():
-                if len(self.ship_lengths) > 0:
-                    self._handle_event(event, self.ship_lengths[-1]["length"], self.ship_lengths[-1]["name"])
+                if self._handle_event(event):
+                    return self.ships
 
             self.draw()
             clock.tick(60)
-
-        return self.ships
