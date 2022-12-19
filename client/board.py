@@ -1,6 +1,7 @@
 import pygame
 
 import constants
+import ship
 
 
 class Board:
@@ -22,13 +23,30 @@ class Board:
         return any(miss[0] == x and miss[1] == y for miss in self.misses)
 
     def fire_at(self, x, y):
-        for ship in self.ships:
-            for coord in ship.coordinates:
+        for shp in self.ships:
+            for coord in shp.coordinates:
                 if coord.x == x and coord.y == y:
-                    self.hit_at(x, y)
+                    self.add_hit(x, y)
                     return
 
-        self.miss_at(x, y)
+        self.add_miss(x, y)
+
+    @staticmethod
+    def from_dict(board_dict):
+        board = Board([])
+
+        board.hits = board_dict["hits"]
+        board.misses = board_dict["misses"]
+        board.ships = [ship.Ship.from_list(ship_coords) for ship_coords in board_dict["ships"]]
+
+        return board
+
+    def to_dict(self):
+        return {
+            "hits": self.hits,
+            "misses": self.misses,
+            "ships": [shp.to_list() for shp in self.ships]
+        }
 
     @staticmethod
     def draw_grid(surface, board_size, y_offset=0):

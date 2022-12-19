@@ -27,11 +27,7 @@ class SetupGui:
 
     def _draw_ships(self):
         for ship in self.ships:
-            for coord in ship.coordinates:
-                dist = constants.GUI_WIDTH // self.board_size
-                pygame.draw.rect(self.surface, constants.SHIP_COLOR,
-                                 (coord.x * dist + 1, coord.y * dist + 1,
-                                  dist - 1, dist - 1))
+            ship.draw(self.surface, self.board_size)
 
     def _draw_grid(self, y_offset=0):
         size_between = constants.GUI_WIDTH // self.board_size

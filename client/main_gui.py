@@ -5,6 +5,7 @@ from enum import Enum
 
 import pygame
 
+import endgame_screen_gui
 import constants
 import networking
 
@@ -42,6 +43,8 @@ class MainGui:
 
         hit_msg = networking.RecvMessage(self.client_socket)
         hit_msg.recv_blocking()
+
+        print(__import__("time").time(), hit_msg.message)
 
         if hit_msg.message == "hit":
             self.opponent_board.add_hit(x, y)
@@ -119,6 +122,21 @@ class MainGui:
 
         pygame.display.update()
 
+    def _handle_endgame(self, message):
+        send_ships = networking.SendMessage(self.client_socket)
+        send_ships.send(self.board.to_dict())
+
+        recv_ships = networking.RecvMessage(self.client_socket)
+        recv_ships.recv_blocking()
+
+        print(recv_ships.message)
+
+        opponent_board = Board.from_dict(recv_ships.message)
+
+        endgame_screen = endgame_screen_gui.EndgameScreenGui(self.surface, self.board_size, message["game_status"],
+                                                             self.board, opponent_board)
+        endgame_screen.run(10)
+
     def run(self):
         clock = pygame.time.Clock()
 
@@ -138,14 +156,17 @@ class MainGui:
 
             self.mode = Mode.SELECTING_MOVE
 
-            if opponent_move_info.message != "waiting for move":
-                for ship in self.board.ships:
-                    if ship.has_coords(*opponent_move_info.message):
-                        self.board.fire_at(*opponent_move_info.message)
-                        break
+            print(opponent_move_info.message)
 
-                else:  # nobreak
-                    self.board.add_miss(*opponent_move_info.message)
+            if type(opponent_move_info.message) == dict and opponent_move_info.message["game_status"] is not None:
+                if opponent_move_info.message["game_status"] == "lost":
+                    self.board.fire_at(*opponent_move_info.message["move"])
+
+                self._handle_endgame(opponent_move_info.message)
+                return
+
+            if opponent_move_info.message != "waiting for move":
+                self.board.fire_at(*opponent_move_info.message["move"])
 
             self.turn_text.change_text("Your turn")
 

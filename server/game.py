@@ -61,10 +61,16 @@ class Game:
                     player.send("no ship sank")
 
                 if self.players[i - 1].board.is_lost():
-                    player.send("won")
-                    self.players[i - 1].send("lost")
+                    player.send({"game_status": "won", "move": None})
+                    self.players[i - 1].send({"game_status": "lost", "move": move})
                     game_ended = True
                     break
 
                 print(f"Sending to player {i - 1}")
-                self.players[i - 1].send([move[0], move[1]])
+                self.players[i - 1].send({"game_status": None, "move": move})
+
+        player1_board = self.players[0].receive()
+        player2_board = self.players[1].receive()
+
+        self.players[1].send(player1_board)
+        self.players[0].send(player2_board)

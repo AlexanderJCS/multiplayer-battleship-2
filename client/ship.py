@@ -1,6 +1,7 @@
 import pygame
 
 import constants
+import ship_coord
 
 
 class Ship:
@@ -31,10 +32,19 @@ class Ship:
     def has_coords(self, x, y):
         return any(coord.x == x and coord.y == y for coord in self.coordinates)
 
-    def draw(self, surface, board_size):
+    def draw(self, surface, board_size, y_offset=0):
         dist = constants.GUI_WIDTH // board_size
 
         for coord in self.coordinates:
             pygame.draw.rect(surface, constants.SHIP_COLOR,
-                             (coord.x * dist + 1, coord.y * dist + 1,
+                             (coord.x * dist + 1, coord.y * dist + y_offset + 1,
                               dist - 1, dist - 1))
+
+    def to_list(self):
+        return [[coord.x, coord.y] for coord in self.coordinates]
+
+    @staticmethod
+    def from_list(coords):
+        coords_object = [ship_coord.ShipCoordinate(coord[0], coord[1]) for coord in coords]
+
+        return Ship(coords_object, "unnamed")
