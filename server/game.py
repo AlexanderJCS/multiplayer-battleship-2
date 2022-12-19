@@ -7,11 +7,12 @@ class Game:
     def __init__(self, players: list):
         self.players = players
 
-    def setup(self):
+    def send_start_messages(self):
         for player in self.players:
             player.send("start")
             player.send(str(constants.BOARD_SIZE))
 
+    def get_ships(self):
         for player in self.players:
             ships = player.receive()
             ships_objects = []
@@ -19,10 +20,6 @@ class Game:
             for ship_coords in ships:
                 print(ship_coords)
                 coords_object = [ship_coord.ShipCoordinate(*coord) for coord in ship_coords[1:]]
-
-                for coord in coords_object:
-                    print(coord.x, coord.y)
-
                 ships_objects.append(ship.Ship(ship_coords[0], coords_object))
 
             player.assign_ships(ships_objects)
@@ -61,8 +58,8 @@ class Game:
                     player.send("no ship sank")
 
                 if self.players[i - 1].board.is_lost():
-                    player.send({"game_status": "won", "move": None})
-                    self.players[i - 1].send({"game_status": "lost", "move": move})
+                    player.send({"game_status": "You won", "move": None})
+                    self.players[i - 1].send({"game_status": "You lost", "move": move})
                     game_ended = True
                     break
 

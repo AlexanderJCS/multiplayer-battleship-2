@@ -34,21 +34,12 @@ class Game:
 
         self.client_socket.settimeout(1000)
 
-    def run_setup(self):
-        board_size_packet = networking.RecvMessage(self.client_socket)
-        board_size_packet.recv_blocking()
+    def get_board_size(self):
+        board_size_msg = networking.RecvMessage(self.client_socket)
+        board_size_msg.recv_blocking()
+        self.board_size = int(board_size_msg.message)
 
-        if board_size_packet.error:
-            logging.critical("Error when trying to receive board size")
-            exit(1)
-
-        try:
-            self.board_size = int(board_size_packet.message)
-
-        except TypeError:
-            logging.critical(f"Cannot convert {board_size_packet.message} to an int when trying to parse board size")
-            exit(1)
-
+    def run_ship_setup(self):
         ship_setup = setup_gui.SetupGui(self.board_size, self.surface)
         self.ships = ship_setup.run()
 
@@ -75,6 +66,9 @@ class Game:
 
     def run(self):
         self.connect()
-        self.run_setup()
-        mg = main_gui.MainGui(self.ships, self.board_size, self.surface, self.client_socket)
-        mg.run()
+        self.get_board_size()
+
+        while True:
+            self.run_ship_setup()
+            mg = main_gui.MainGui(self.ships, self.board_size, self.surface, self.client_socket)
+            mg.run()

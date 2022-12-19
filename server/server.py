@@ -24,9 +24,13 @@ def main():
 
     players = [player.Player(clientsocket) for clientsocket in clientsockets]
 
-    g = game.Game(players)
-    g.setup()
-    g.main_game_loop()
+    while True:
+        g = game.Game(players)
+        g.send_start_messages()
+
+        while True:
+            g.get_ships()
+            g.main_game_loop()
 
 
 if __name__ == "__main__":

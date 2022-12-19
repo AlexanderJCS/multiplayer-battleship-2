@@ -36,7 +36,7 @@ class InputBox:
             else:
                 self.text += event.unicode
 
-            # Re-render the text.
+            # Re-render the won_text.
             self.txt_surface = consts.FONT.render(self.text, True, self.color)
 
     def update(self):
@@ -125,8 +125,6 @@ class IPConnectionScreen:
 
             self.draw()
             clock.tick(60)
-
-        print(self.start_message)
 
         return True  # the connection succeeded
 

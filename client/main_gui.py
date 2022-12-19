@@ -44,8 +44,6 @@ class MainGui:
         hit_msg = networking.RecvMessage(self.client_socket)
         hit_msg.recv_blocking()
 
-        print(__import__("time").time(), hit_msg.message)
-
         if hit_msg.message == "hit":
             self.opponent_board.add_hit(x, y)
 
@@ -129,13 +127,11 @@ class MainGui:
         recv_ships = networking.RecvMessage(self.client_socket)
         recv_ships.recv_blocking()
 
-        print(recv_ships.message)
-
         opponent_board = Board.from_dict(recv_ships.message)
 
         endgame_screen = endgame_screen_gui.EndgameScreenGui(self.surface, self.board_size, message["game_status"],
                                                              self.board, opponent_board)
-        endgame_screen.run(10)
+        endgame_screen.run()
 
     def run(self):
         clock = pygame.time.Clock()
@@ -156,10 +152,8 @@ class MainGui:
 
             self.mode = Mode.SELECTING_MOVE
 
-            print(opponent_move_info.message)
-
             if type(opponent_move_info.message) == dict and opponent_move_info.message["game_status"] is not None:
-                if opponent_move_info.message["game_status"] == "lost":
+                if opponent_move_info.message["game_status"] == "You lost":
                     self.board.fire_at(*opponent_move_info.message["move"])
 
                 self._handle_endgame(opponent_move_info.message)
