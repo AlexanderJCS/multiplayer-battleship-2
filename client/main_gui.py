@@ -176,6 +176,7 @@ class MainGui:
             sunk_status.recv_blocking()
 
             self.turn_text.change_text("Waiting for other player")
+            self.ship_destroy_text.change_text("")
 
             if sunk_status.message != "no ship sank":
                 self.ship_destroy_text.change_text(sunk_status.message)
