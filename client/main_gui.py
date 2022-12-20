@@ -20,6 +20,9 @@ class Mode(Enum):
 
 class MainGui:
     def __init__(self, ships: list, board_size: int, surface: pygame.Surface, client_socket: socket.socket):
+        if not pygame.mixer.get_init():
+            pygame.mixer.init()
+
         self.board_size = board_size
         self.surface = surface
         self.mode: Mode = Mode.WAITING_FOR_MSG
@@ -163,6 +166,8 @@ class MainGui:
                 self.board.fire_at(*opponent_move_info.message["move"])
 
             self.turn_text.change_text("Your turn")
+            your_turn_sound = pygame.mixer.Sound(file=constants.YOUR_TURN_SOUND_PATH)
+            your_turn_sound.play()
 
             while self.mode == Mode.SELECTING_MOVE:
                 self._draw()
