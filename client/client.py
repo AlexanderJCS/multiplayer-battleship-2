@@ -1,13 +1,13 @@
 import pygame.surface
 
-import constants
+from settings import settings
 import game
 
 
 def main():
     pygame.init()
     pygame.display.set_caption("Multiplayer Battleship")
-    surface = pygame.display.set_mode((constants.GUI_WIDTH, constants.GUI_HEIGHT))
+    surface = pygame.display.set_mode((settings["gui"]["gui_width"], settings["gui"]["gui_height"]))
 
     g = game.Game(surface)
     g.run()

@@ -1,0 +1,20 @@
+{
+  "gui": {
+    "gui_width": 400,
+    "gui_height": 900,
+    "y_offset": 500
+  },
+
+  "colors": {
+    "water_color": [53, 220, 242],
+    "ship_color": [149, 168, 173],
+    "preview_ship_color": [80, 90, 90],
+    "preview_ship_cannot_place_color": [200, 20, 20],
+    "hit_color": [255, 50, 50],
+    "miss_color": [230, 230, 230]
+  },
+
+  "sounds": {
+   "your_turn": "sounds/beep_1.wav"
+  }
+}

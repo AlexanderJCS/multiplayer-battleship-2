@@ -5,9 +5,10 @@ import pygame
 
 import connection_gui
 import networking
-import constants
 import setup_gui
 import main_gui
+
+from settings import settings
 
 
 class Game:
@@ -19,7 +20,7 @@ class Game:
 
     def connect(self):
         # Run the IP connection screen
-        conn = connection_gui.IPConnectionScreen(self.surface, constants.GUI_WIDTH, 100, self.client_socket)
+        conn = connection_gui.IPConnectionScreen(self.surface, settings["gui"]["gui_width"], 100, self.client_socket)
 
         while True:
             connected = conn.run()
@@ -29,7 +30,7 @@ class Game:
 
             # Reset the client socket to avoid errors if the connection failed
             self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            conn = connection_gui.IPConnectionScreen(self.surface, constants.GUI_WIDTH, 100,
+            conn = connection_gui.IPConnectionScreen(self.surface, settings["gui"]["gui_width"], 100,
                                                      self.client_socket, "Failed")
 
         self.client_socket.settimeout(1000)

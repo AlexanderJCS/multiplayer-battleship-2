@@ -1,6 +1,6 @@
 import pygame
 
-import constants
+from settings import settings
 import ship_coord
 
 
@@ -33,10 +33,10 @@ class Ship:
         return any(coord.x == x and coord.y == y for coord in self.coordinates)
 
     def draw(self, surface, board_size, y_offset=0):
-        dist = constants.GUI_WIDTH // board_size
+        dist = settings["gui"]["gui_width"] // board_size
 
         for coord in self.coordinates:
-            pygame.draw.rect(surface, constants.SHIP_COLOR,
+            pygame.draw.rect(surface, settings["colors"]["ship_color"],
                              (coord.x * dist + 1, coord.y * dist + y_offset + 1,
                               dist - 1, dist - 1))
 

@@ -1,6 +1,6 @@
 import pygame
 
-import constants
+from settings import settings
 import gui_text
 
 from ship_coord import ShipCoordinate
@@ -9,14 +9,17 @@ from ship import Ship
 
 class SetupGui:
     def __init__(self, board_size: int, surface: pygame.Surface):
-        self.rotate_text = gui_text.Text("Press R to rotate ship", constants.FONT,
-                                         (255, 255, 255), (constants.GUI_WIDTH // 2, constants.Y_OFFSET - 66))
+        self.rotate_text = gui_text.Text("Press R to rotate ship",
+                                         (255, 255, 255), (settings["gui"]["gui_width"] // 2,
+                                                           settings["gui"]["y_offset"] - 66))
 
-        self.undo_text = gui_text.Text("Press U to undo placement", constants.FONT,
-                                       (255, 255, 255), (constants.GUI_WIDTH // 2, constants.Y_OFFSET - 33))
+        self.undo_text = gui_text.Text("Press U to undo placement",
+                                       (255, 255, 255), (settings["gui"]["gui_width"] // 2,
+                                                         settings["gui"]["y_offset"] - 33))
 
-        self.submit_text = gui_text.Text("Press enter to submit ships", constants.FONT,
-                                         (255, 255, 255), (constants.GUI_WIDTH // 2, constants.Y_OFFSET))
+        self.submit_text = gui_text.Text("Press enter to submit ships",
+                                         (255, 255, 255), (settings["gui"]["gui_width"] // 2,
+                                                           settings["gui"]["y_offset"]))
 
         self.board_size = board_size
         self.surface = surface
@@ -33,14 +36,14 @@ class SetupGui:
         self.ships = []
 
     def _draw_background(self):
-        self.surface.fill(constants.WATER_COLOR)
+        self.surface.fill(settings["colors"]["water_color"])
 
     def _draw_ships(self):
         for ship in self.ships:
             ship.draw(self.surface, self.board_size)
 
     def _draw_grid(self, y_offset=0):
-        size_between = constants.GUI_WIDTH // self.board_size
+        size_between = settings["gui"]["gui_width"] // self.board_size
 
         x = 0
         y = y_offset
@@ -52,7 +55,7 @@ class SetupGui:
                              (x, self.board_size * size_between + y_offset))
 
             # Draw horizontal lines
-            pygame.draw.line(self.surface, (100, 100, 100), (0, y), (constants.GUI_WIDTH, y))
+            pygame.draw.line(self.surface, (100, 100, 100), (0, y), (settings["gui"]["gui_width"], y))
 
             x += size_between
             y += size_between
@@ -69,33 +72,33 @@ class SetupGui:
         mouse_pos = pygame.mouse.get_pos()
 
         # If the mouse is out of the board
-        if mouse_pos[1] >= constants.GUI_WIDTH:
+        if mouse_pos[1] >= settings["gui"]["gui_width"]:
             return
 
-        coords = (int(mouse_pos[0] / constants.GUI_WIDTH * self.board_size),
-                  int(mouse_pos[1] / constants.GUI_WIDTH * self.board_size))
+        coords = (int(mouse_pos[0] / settings["gui"]["gui_width"] * self.board_size),
+                  int(mouse_pos[1] / settings["gui"]["gui_width"] * self.board_size))
 
         can_be_placed, preview_ship = self._add_ship(coords[0], coords[1],
                                                      self.ship_lengths[-1]["length"],
                                                      self.ship_lengths[-1]["name"])
 
         # If a ship can be placed at that location
-        dist = constants.GUI_WIDTH // self.board_size
+        dist = settings["gui"]["gui_width"] // self.board_size
 
         if can_be_placed:
             # Draw the ship
             for coord in preview_ship.coordinates:
-                pygame.draw.rect(self.surface, constants.PREVIEW_SHIP_COLOR,
+                pygame.draw.rect(self.surface, settings["colors"]["preview_ship_color"],
                                  (coord.x * dist + 1, coord.y * dist + 1,
                                   dist - 1, dist - 1))
 
         else:
             # Draw the ship
             for coord in preview_ship.coordinates:
-                if coord.y * dist + 1 >= constants.GUI_WIDTH:
+                if coord.y * dist + 1 >= settings["gui"]["gui_width"]:
                     break
 
-                pygame.draw.rect(self.surface, constants.PREVIEW_SHIP_CANNOT_PLACE_COLOR,
+                pygame.draw.rect(self.surface, settings["colors"]["preview_ship_cannot_place_color"],
                                  (coord.x * dist + 1, coord.y * dist + 1,
                                   dist - 1, dist - 1))
 
@@ -154,11 +157,11 @@ class SetupGui:
             mouse_pos = pygame.mouse.get_pos()
 
             # If it is out of the board
-            if mouse_pos[1] >= constants.GUI_WIDTH:
+            if mouse_pos[1] >= settings["gui"]["gui_width"]:
                 return
 
-            coords = (int(mouse_pos[0] / constants.GUI_WIDTH * self.board_size),
-                      int(mouse_pos[1] / constants.GUI_WIDTH * self.board_size))
+            coords = (int(mouse_pos[0] / settings["gui"]["gui_width"] * self.board_size),
+                      int(mouse_pos[1] / settings["gui"]["gui_width"] * self.board_size))
 
             can_be_placed, ship = self._add_ship(coords[0], coords[1], self.ship_lengths[-1]["length"],
                                                  self.ship_lengths[-1]["name"])

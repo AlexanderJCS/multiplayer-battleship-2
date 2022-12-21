@@ -1,6 +1,6 @@
 import pygame
 
-import constants
+from settings import settings
 import gui_text
 
 
@@ -8,11 +8,11 @@ class EndgameScreenGui:
     def __init__(self, surface, board_size, message, player_board, opponent_board):
         self.surface = surface
         self.board_size = board_size
-        self.won_text = gui_text.Text(message, constants.FONT, (255, 255, 255),
-                                      (constants.GUI_WIDTH // 2, constants.Y_OFFSET - 75))
+        self.won_text = gui_text.Text(message, (255, 255, 255),
+                                      (settings["gui"]["gui_width"] // 2, settings["gui"]["y_offset"] - 75))
 
-        self.info_text = gui_text.Text("Press any key to play again", constants.FONT, (255, 255, 255),
-                                       (constants.GUI_WIDTH // 2, constants.Y_OFFSET - 25))
+        self.info_text = gui_text.Text("Press any key to play again", (255, 255, 255),
+                                       (settings["gui"]["gui_width"] // 2, settings["gui"]["y_offset"] - 25))
 
         self.player_board = player_board
         self.opponent_board = opponent_board
@@ -24,10 +24,10 @@ class EndgameScreenGui:
             ship.draw(self.surface, self.board_size)
 
         for ship in self.opponent_board.ships:
-            ship.draw(self.surface, self.board_size, constants.Y_OFFSET)
+            ship.draw(self.surface, self.board_size, settings["gui"]["y_offset"])
 
         self.player_board.draw(self.surface, self.board_size)
-        self.opponent_board.draw(self.surface, self.board_size, constants.Y_OFFSET)
+        self.opponent_board.draw(self.surface, self.board_size, settings["gui"]["y_offset"])
 
         self.won_text.draw(self.surface)
         self.info_text.draw(self.surface)

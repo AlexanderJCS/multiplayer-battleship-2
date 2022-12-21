@@ -6,9 +6,10 @@ from enum import Enum
 import pygame
 
 import endgame_screen_gui
-import constants
+import settings
 import networking
 
+from settings import settings
 from board import Board
 from gui_text import Text
 
@@ -30,11 +31,11 @@ class MainGui:
         self.board: Board = Board(ships)
         self.opponent_board: Board = Board([])
 
-        self.turn_text = Text("Waiting for other player", constants.FONT,
-                              (255, 255, 255), (constants.GUI_WIDTH // 2, constants.Y_OFFSET - 75))
+        self.turn_text = Text("Waiting for other player", (255, 255, 255),
+                              (settings["gui"]["gui_width"] // 2, settings["gui"]["y_offset"] - 75))
 
-        self.ship_destroy_text = Text("", constants.FONT,
-                                      (255, 255, 255), (constants.GUI_WIDTH // 2, constants.Y_OFFSET - 25))
+        self.ship_destroy_text = Text("", (255, 255, 255),
+                                      (settings["gui"]["gui_width"] // 2, settings["gui"]["y_offset"] - 25))
 
     def _fire(self, x, y):
         fire_message = networking.SendMessage(self.client_socket)
@@ -62,18 +63,19 @@ class MainGui:
             mouse_pos = pygame.mouse.get_pos()
 
             # If it is out of the board
-            if mouse_pos[1] <= constants.Y_OFFSET:
+            if mouse_pos[1] <= settings["gui"]["y_offset"]:
                 return
 
-            coords = (int(mouse_pos[0] / constants.GUI_WIDTH * self.board_size),
-                      int((mouse_pos[1] - constants.Y_OFFSET) / constants.GUI_WIDTH * self.board_size))
+            coords = (int(mouse_pos[0] / settings["gui"]["gui_width"] * self.board_size),
+                      int((mouse_pos[1] - settings["gui"]["y_offset"]) /
+                          settings["gui"]["gui_width"] * self.board_size))
 
             if not (self.opponent_board.hit_at(*coords) or self.opponent_board.miss_at(*coords)):
                 self._fire(*coords)
                 self.mode = Mode.WAITING_FOR_MSG
 
     def _draw_grid(self, y_offset=0):
-        size_between = constants.GUI_WIDTH // self.board_size
+        size_between = settings["gui"]["gui_width"] // self.board_size
 
         x = 0
         y = y_offset
@@ -85,7 +87,7 @@ class MainGui:
                              (x, self.board_size * size_between + y_offset))
 
             # Draw horizontal lines
-            pygame.draw.line(self.surface, (100, 100, 100), (0, y), (constants.GUI_WIDTH, y))
+            pygame.draw.line(self.surface, (100, 100, 100), (0, y), (settings["gui"]["gui_width"], y))
 
             x += size_between
             y += size_between
@@ -97,23 +99,23 @@ class MainGui:
     def _draw_preview_move(self):
         mouse_pos = pygame.mouse.get_pos()
 
-        if mouse_pos[1] <= constants.Y_OFFSET:
+        if mouse_pos[1] <= settings["gui"]["y_offset"]:
             return
 
-        dist = constants.GUI_WIDTH // self.board_size
+        dist = settings["gui"]["gui_width"] // self.board_size
 
-        coords = (int(mouse_pos[0] / constants.GUI_WIDTH * self.board_size),
-                  int((mouse_pos[1] - constants.Y_OFFSET) / constants.GUI_WIDTH * self.board_size))
+        coords = (int(mouse_pos[0] / settings["gui"]["gui_width"] * self.board_size),
+                  int((mouse_pos[1] - settings["gui"]["y_offset"]) / settings["gui"]["gui_width"] * self.board_size))
 
-        pygame.draw.rect(self.surface, constants.PREVIEW_SHIP_COLOR,
-                         (coords[0] * dist + 1, coords[1] * dist + constants.Y_OFFSET + 1,
+        pygame.draw.rect(self.surface, settings["colors"]["preview_ship_color"],
+                         (coords[0] * dist + 1, coords[1] * dist + settings["gui"]["y_offset"] + 1,
                           dist - 1, dist - 1))
 
     def _draw(self):
         self.surface.fill((0, 0, 0))
         self._draw_ships()
         self.board.draw(self.surface, self.board_size)
-        self.opponent_board.draw(self.surface, self.board_size, constants.Y_OFFSET)
+        self.opponent_board.draw(self.surface, self.board_size, settings["gui"]["y_offset"])
 
         if self.mode == Mode.SELECTING_MOVE:
             self._draw_preview_move()
@@ -166,7 +168,7 @@ class MainGui:
                 self.board.fire_at(*opponent_move_info.message["move"])
 
             self.turn_text.change_text("Your turn")
-            your_turn_sound = pygame.mixer.Sound(file=constants.YOUR_TURN_SOUND_PATH)
+            your_turn_sound = pygame.mixer.Sound(file=settings["sounds"]["your_turn"])
             your_turn_sound.play()
 
             while self.mode == Mode.SELECTING_MOVE:

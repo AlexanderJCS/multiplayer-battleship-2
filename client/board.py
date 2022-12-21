@@ -1,6 +1,6 @@
 import pygame
 
-import constants
+from settings import settings
 import ship
 
 
@@ -50,7 +50,7 @@ class Board:
 
     @staticmethod
     def draw_grid(surface, board_size, y_offset=0):
-        size_between = constants.GUI_WIDTH // board_size
+        size_between = settings["gui"]["gui_width"] // board_size
 
         x = 0
         y = y_offset
@@ -62,14 +62,14 @@ class Board:
                              (x, board_size * size_between + y_offset))
 
             # Draw horizontal lines
-            pygame.draw.line(surface, (100, 100, 100), (0, y), (constants.GUI_WIDTH, y))
+            pygame.draw.line(surface, (100, 100, 100), (0, y), (settings["gui"]["gui_width"], y))
 
             x += size_between
             y += size_between
 
     @staticmethod
     def draw_cubes(surface, coords, color, board_size, y_offset):
-        dist = constants.GUI_WIDTH // board_size
+        dist = settings["gui"]["gui_width"] // board_size
 
         for coord in coords:
             pygame.draw.rect(surface, color,
@@ -78,5 +78,5 @@ class Board:
 
     def draw(self, surface, board_size, y_offset=0):
         self.draw_grid(surface, board_size, y_offset)
-        self.draw_cubes(surface, self.hits, constants.HIT_COLOR, board_size, y_offset)
-        self.draw_cubes(surface, self.misses, constants.MISS_COLOR, board_size, y_offset)
+        self.draw_cubes(surface, self.hits, settings["colors"]["hit_color"], board_size, y_offset)
+        self.draw_cubes(surface, self.misses, settings["colors"]["miss_color"], board_size, y_offset)

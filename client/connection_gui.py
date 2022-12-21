@@ -2,15 +2,15 @@ import threading
 import pygame
 import socket
 
-import constants as consts
-
 from networking import RecvMessage
 from gui_text import Text
 
-pygame.init()
+if not pygame.get_init():
+    pygame.init()
 
 COLOR_INACTIVE = pygame.Color('lightskyblue3')
 COLOR_ACTIVE = pygame.Color('dodgerblue2')
+FONT = pygame.font.SysFont("Calibri", 25)
 
 
 class InputBox:
@@ -18,7 +18,7 @@ class InputBox:
         self.rect = pygame.Rect(x, y, w, h)
         self.color = COLOR_INACTIVE
         self.text = text
-        self.txt_surface = consts.FONT.render(text, True, (255, 255, 255))
+        self.txt_surface = FONT.render(text, True, (255, 255, 255))
         self.active = False
 
     def handle_event(self, event):
@@ -37,7 +37,7 @@ class InputBox:
                 self.text += event.unicode
 
             # Re-render the won_text.
-            self.txt_surface = consts.FONT.render(self.text, True, self.color)
+            self.txt_surface = FONT.render(self.text, True, self.color)
 
     def update(self):
         width = max(200, self.txt_surface.get_width() + 10)
@@ -60,13 +60,13 @@ class IPConnectionScreen:
         self.player_offset = player_offset
 
         # Text
-        self.ip_text = Text("Server IP:", consts.FONT, (255, 255, 255),
+        self.ip_text = Text("Server IP:", (255, 255, 255),
                             (self.width // 2, self.player_offset))
 
-        self.port_text = Text("Server Port:", consts.FONT, (255, 255, 255),
+        self.port_text = Text("Server Port:", (255, 255, 255),
                               (self.width // 2, self.player_offset + 180))
 
-        self.info_text = Text(default_info_text, consts.FONT, (255, 255, 255),
+        self.info_text = Text(default_info_text, (255, 255, 255),
                               (self.width // 2, self.player_offset + 300))
 
         # Input boxes

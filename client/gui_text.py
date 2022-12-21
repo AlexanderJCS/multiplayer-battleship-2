@@ -1,7 +1,11 @@
+import pygame
+
+if not pygame.font.get_init():
+    pygame.font.init()
 
 
 class Text:
-    def __init__(self, message, font, color, pos):
+    def __init__(self, message, color, pos, font=pygame.font.SysFont("Calibri", 25)):
         self.font = font
         self.color = color
         self.pos = pos
